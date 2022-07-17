@@ -40,17 +40,49 @@ let c = canvas.getContext("2d"); // 졸라리 큰 object임. super object
 // let dy = (Math.random() - 0.5) * 10;
 // let radius = 30;
 
+let mouse = {
+  x: undefined,
+  y: undefined,
+};
+let MAX_RADIUS = 40;
+let MIN_RADIUS = 2;
+let colorArray = ["#202020", "#E7DDDD", "#807A73", "#FF682C", "#C1B9B2"];
+
+window.addEventListener("mousemove", function (event) {
+  mouse.x = event.x;
+  mouse.y = event.y;
+});
+
+window.addEventListener("resize", function (event) {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  init();
+});
+// document.addEventListener("mouseleave", function (event) {
+//   if (
+//     event.clientY <= 0 ||
+//     event.clientX <= 0 ||
+//     event.clientX >= window.innerWidth ||
+//     event.clientY >= window.innerHeight
+//   ) {
+//     console.log("I'm out");
+//   }
+// });
+
 function Circle(x, y, dx, dy, radius) {
   this.x = x;
   this.y = y;
   this.dx = dx;
   this.dy = dy;
   this.radius = radius;
+  this.minRadius = radius;
+  this.color = colorArray[Math.floor(Math.random() * colorArray.length)];
+
   this.draw = function () {
     c.beginPath();
     c.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-    c.strokeStyle = "blue";
-    c.stroke();
+    c.fillStyle = this.color;
+    c.fill();
   };
 
   this.update = function () {
@@ -62,18 +94,35 @@ function Circle(x, y, dx, dy, radius) {
     }
     this.x += this.dx;
     this.y += this.dy;
+
+    // interactivity
+    if (
+      mouse.x - this.x < 50 &&
+      mouse.x - this.x > -50 &&
+      mouse.y - this.y < 50 &&
+      mouse.y - this.y > -50
+    ) {
+      if (this.radius < MAX_RADIUS) {
+        this.radius += 1;
+      }
+    } else if (this.radius > this.minRadius) {
+      this.radius -= 1;
+    }
     this.draw();
   };
 }
-const circleList = [];
-for (let i = 0; i < 100; i++) {
-  let radius = 30;
-  let x = Math.random() * (innerWidth - radius * 2) + radius;
-  let y = Math.random() * (innerHeight - radius * 2) + radius;
-  let dx = (Math.random() - 0.5) * 10;
-  let dy = (Math.random() - 0.5) * 10;
+let circleList = [];
+function init() {
+  circleList = [];
+  for (let i = 0; i < 800; i++) {
+    let radius = Math.random() * 3 + 1;
+    let x = Math.random() * (innerWidth - radius * 2) + radius;
+    let y = Math.random() * (innerHeight - radius * 2) + radius;
+    let dx = (Math.random() - 0.5) * 2;
+    let dy = (Math.random() - 0.5) * 2;
 
-  circleList.push(new Circle(x, y, dx, dy, radius));
+    circleList.push(new Circle(x, y, dx, dy, radius));
+  }
 }
 
 function animate() {
@@ -89,5 +138,5 @@ function animate() {
   //   c.strokeStyle = "blue";
   //   c.stroke();
 }
-
+init();
 animate();
